@@ -1,4 +1,4 @@
-import React, {useState, useEffect} from 'react';
+import React from 'react'; // eslint-disable-line no-unused-vars
 import Home from './pages/Home';
 import Signup from './pages/Signup';
 import Login from './pages/Login';
