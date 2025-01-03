@@ -1,20 +1,11 @@
 import Express from "express";
-
-
-
+import auth_router from "./auth.js"; 
 const router = Express.Router();
 
-// Import your route handlers here
-// const userRoutes = require('./user.routes');
-// const postRoutes = require('./post.routes');
-
-// Define your routes here
-// router.use('/users', userRoutes);
-// router.use('/posts', postRoutes);
+router.use('/auth', auth_router);
 
 router.get('/', (req, res) => {
     res.send('Welcome to Surge-Gram API');
 });
 
 export default router;
-
