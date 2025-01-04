@@ -1,38 +1,37 @@
 import React, { useState } from 'react'; // eslint-disable-line no-unused-vars
-import axios from 'axios';
 import { useNavigate } from 'react-router-dom';
+import { useDispatch, useSelector } from 'react-redux';
+import { login , clearSuccess } from '../../features/auth/authSlice';
 
 const Login = () => {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
-  const [error, setError] = useState('');
   const navigate = useNavigate();
+  const dispatch = useDispatch();
+  const { isError, isSuccess, message } = useSelector((state) => state.auth);
 
-  const handleLogin = async (e) => {
+  const handleLogin = (e) => {
     e.preventDefault();
 
-    try {
-      const response = await axios.post('http://localhost:3000/api/v1/auth/login', {
-        email,
-        password,
-      });
+    const userData = { email, password };
 
-      // Assuming the API returns a token
-      const token = response.data.token;
-      localStorage.setItem('token', token); // Save token to localStorage
-
-      // Navigate to the home page on success
-      navigate('/');
-    } catch (err) {
-      setError(err.response?.data?.message || 'Login failed. Please try again.');
-    }
+    // Dispatch the login action
+    dispatch(login(userData));
   };
+
+  // Handle navigation and state reset on successful login
+  React.useEffect(() => {
+    if (isSuccess) {
+      navigate('/');
+      dispatch(clearSuccess());
+    }
+  }, [isSuccess, navigate, dispatch]);
 
   return (
     <div style={styles.container}>
       <h1>Login to Surge-Gram</h1>
       <form onSubmit={handleLogin} style={styles.form}>
-        {error && <p style={styles.error}>{error}</p>}
+        {isError && <p style={styles.error}>{message}</p>}
         <div style={styles.inputGroup}>
           <label>Email:</label>
           <input

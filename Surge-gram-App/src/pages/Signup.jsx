@@ -1,6 +1,7 @@
 import React, { useState } from 'react'; // eslint-disable-line no-unused-vars
-import axios from 'axios';
 import { useNavigate } from 'react-router-dom';
+import { useDispatch, useSelector } from 'react-redux';
+import { register } from '../../features/auth/authSlice';
 
 const Signup = () => {
   const [formData, setFormData] = useState({
@@ -9,9 +10,10 @@ const Signup = () => {
     password: '',
     fullname: '',
   });
-  const [error, setError] = useState('');
-  const [success, setSuccess] = useState('');
+
+  const dispatch = useDispatch();
   const navigate = useNavigate();
+  const { isError, isSuccess, message } = useSelector((state) => state.auth);
 
   const handleChange = (e) => {
     const { name, value } = e.target;
@@ -21,24 +23,22 @@ const Signup = () => {
   const handleSignup = async (e) => {
     e.preventDefault();
 
-    try {
-      const response = await axios.post('http://localhost:3000/api/v1/auth/register', formData); // eslint-disable-line no-unused-vars
-
-      setSuccess('Signup successful! Redirecting to login...');
-      setTimeout(() => {
-        navigate('/login'); // Redirect to login page
-      }, 2000);
-    } catch (err) {
-      setError(err.response?.data?.message || 'Signup failed. Please try again.');
-    }
+    // Dispatch the register action
+    dispatch(register(formData));
   };
+
+  if (isSuccess) {
+    setTimeout(() => {
+      navigate('/login'); // Redirect to login page after success
+    }, 2000);
+  }
 
   return (
     <div style={styles.container}>
       <h1>Signup for Surge-Gram</h1>
       <form onSubmit={handleSignup} style={styles.form}>
-        {error && <p style={styles.error}>{error}</p>}
-        {success && <p style={styles.success}>{success}</p>}
+        {isError && <p style={styles.error}>{message}</p>}
+        {isSuccess && <p style={styles.success}>Signup successful! Redirecting to login...</p>}
         <div style={styles.inputGroup}>
           <label>Full Name:</label>
           <input
