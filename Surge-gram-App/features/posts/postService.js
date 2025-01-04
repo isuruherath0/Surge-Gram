@@ -7,6 +7,22 @@ const getAllPosts = async () => {
     return response.data;
 };
 
+const addLikeorRemoveLike = async (postId, token) => {
+    try {
+        const response = await axios.post(
+            `${API_URL}/like`, 
+            { id: postId }, 
+            { 
+                headers: {
+                    Authorization: `Bearer ${token}` 
+                }
+            }
+        );
+        return response.data;
+    } catch (error) {
+        console.error("Error in liking or removing like:", error);
+        throw error; 
+    }
+};
 
-
-export default { getAllPosts };
+export default { getAllPosts , addLikeorRemoveLike };

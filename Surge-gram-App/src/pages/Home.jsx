@@ -3,24 +3,37 @@ import { useSelector, useDispatch } from "react-redux";
 import { useNavigate } from "react-router-dom";
 import { getPosts, reset } from "../../features/posts/postSlice.js";
 import { logout } from "../../features/auth/authSlice.js";
+import { addLikeorRemoveLike } from "../../features/posts/postSlice.js"; // import the addLikeorRemoveLike action
 
 const HomePage = () => {
   const dispatch = useDispatch();
   const navigate = useNavigate();
 
+  const { user, token } = useSelector((state) => state.auth);
   const { posts, isLoading, isError, message } = useSelector((state) => state.post);
 
   useEffect(() => {
-    dispatch(getPosts());
+    if (!user || !token) {
+      navigate("/login");
+    } else {
+      dispatch(getPosts());
+    }
 
     return () => {
       dispatch(reset());
     };
-  }, [dispatch]);
+  }, [dispatch, user, token, navigate]);
 
   const handleLogout = () => {
     dispatch(logout());
     navigate("/login");
+  };
+
+  const handleLike = (postId) => {
+    if (user && token) {
+      // Dispatch add/remove like action
+      dispatch(addLikeorRemoveLike({ postId, token }));
+    }
   };
 
   return (
@@ -44,9 +57,19 @@ const HomePage = () => {
 
             {/* Post Info */}
             <div className="post-info">
-              <div className="likes">{post.noOfLikes} ❤️</div>
+              <div className="likes">
+                {/* Like Button */}
+                <button
+                  onClick={() => handleLike(post._id)}
+                  className={`like-button ${post.likes.includes(user.id) ? 'liked' : 'unliked'}`}
+                >
+                  {post.likes.includes(user.id) ? '❤️' : '🤍'} {/* Full heart if liked, empty heart if not */}
+                </button>
+              </div>
               <div className="username">{post.user.username}</div>
-              <div className="created-at">{new Date(post.createdAt).toLocaleString()}</div>
+              <div className="created-at">
+                {new Date(post.createdAt).toLocaleString()}
+              </div>
             </div>
           </div>
         ))}
