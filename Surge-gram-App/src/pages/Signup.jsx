@@ -1,4 +1,4 @@
-import React, { useState } from 'react'; // eslint-disable-line no-unused-vars
+import React, { useState, useEffect } from 'react'; // eslint-disable-line no-unused-vars
 import { useNavigate } from 'react-router-dom';
 import { useDispatch, useSelector } from 'react-redux';
 import { register } from '../../features/auth/authSlice';
@@ -23,15 +23,16 @@ const Signup = () => {
   const handleSignup = async (e) => {
     e.preventDefault();
 
-    // Dispatch the register action
+
     dispatch(register(formData));
+    
   };
 
-  if (isSuccess) {
-    setTimeout(() => {
-      navigate('/login'); // Redirect to login page after success
-    }, 2000);
-  }
+  useEffect(() => {
+    if (isSuccess) {
+      navigate('/');
+    }
+  }, [isSuccess, navigate]);
 
   return (
     <div style={styles.container}>
