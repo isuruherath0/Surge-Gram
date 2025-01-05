@@ -1,4 +1,4 @@
-name: Build and Push Docker Images to Docker Hub
+name: Build, Push, and Deploy Docker Images
 
 on:
   push:
@@ -40,19 +40,25 @@ jobs:
         run: |
           docker build --build-arg MONGO_URI=${{ secrets.MONGO_URI }} \
                        --build-arg JWT_SECRET=${{ secrets.JWT_SECRET }} \
-                       --build-arg PORT=${{ secrets.PORT }} \
+                       --build-arg PORT=5000 \
                        -t ${{ secrets.DOCKER_USERNAME }}/surge-gram-backend:latest ./Backend
           docker push ${{ secrets.DOCKER_USERNAME }}/surge-gram-backend:latest
 
       - name: Build and push frontend image
         run: |
-          docker build -t ${{ secrets.DOCKER_USERNAME }}/surge-gram-frontend:latest ./Surge-gram-App
+          docker build --build-arg REACT_APP_BACKEND_URL=http://localhost:5000 \
+                       -t ${{ secrets.DOCKER_USERNAME }}/surge-gram-frontend:latest ./Surge-gram-App
           docker push ${{ secrets.DOCKER_USERNAME }}/surge-gram-frontend:latest
 
   deploy:
     runs-on: ubuntu-latest
 
     steps:
+      - name: Install Docker Compose
+        run: |
+          sudo curl -L "https://github.com/docker/compose/releases/download/v2.6.1/docker-compose-$(uname -s)-$(uname -m)" -o /usr/local/bin/docker-compose
+          sudo chmod +x /usr/local/bin/docker-compose
+
       - name: Log in to Docker Hub
         uses: docker/login-action@v2
         with:
@@ -82,7 +88,7 @@ jobs:
               ports:
                 - '5000:5000'
               environment:
-                REACT_APP_BACKEND_URL: http://localhost:3000
+                REACT_APP_BACKEND_URL: http://localhost:5000
           " > docker-compose.yml
 
       - name: Pull and run services with Docker Compose
