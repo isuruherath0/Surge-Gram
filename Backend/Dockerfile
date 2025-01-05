@@ -13,8 +13,18 @@ RUN npm install
 # Copy the backend code
 COPY . .
 
-# Expose the port the backend server listens on
-EXPOSE 3000
+# Pass build args (environment variables) to the app
+ARG MONGO_URI
+ARG JWT_SECRET
+ARG PORT
 
-# Run the backend using environment variables from the .env file
+# Set environment variables for the backend
+ENV MONGO_URI=$MONGO_URI
+ENV JWT_SECRET=$JWT_SECRET
+ENV PORT=$PORT
+
+# Expose the port the backend server listens on
+EXPOSE $PORT
+
+# Run the backend using environment variables
 CMD ["npm", "start"]
