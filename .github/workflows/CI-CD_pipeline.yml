@@ -27,7 +27,7 @@ jobs:
       - name: Run backend tests
         run: |
           cd Backend
-          npm run test  # Run the backend unit tests
+          npm run test # Run the backend unit tests
           cd ..
 
       - name: Log in to Docker Hub
@@ -75,7 +75,7 @@ jobs:
               container_name: surge-gram-backend
               restart: always
               ports:
-                - '3000:3000'
+                - '5000:5000'
               environment:
                 MONGO_URI: ${{ secrets.MONGO_URI }}
                 JWT_SECRET: ${{ secrets.JWT_SECRET }}
@@ -86,10 +86,13 @@ jobs:
               container_name: surge-gram-frontend
               restart: always
               ports:
-                - '5000:5000'
+                - '3000:3000'
               environment:
                 REACT_APP_BACKEND_URL: http://localhost:5000
           " > docker-compose.yml
+
+      - name: Display docker-compose.yml
+        run: cat docker-compose.yml
 
       - name: Pull and run services with Docker Compose
         run: |
