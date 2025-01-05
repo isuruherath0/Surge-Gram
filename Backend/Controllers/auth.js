@@ -1,12 +1,13 @@
 import User from "../Models/User.js";
 import bcrypt from "bcrypt";
 import jwt from "jsonwebtoken";
+import axios from "axios";
 
 // Register a new user
 
 export const register = async (req, res) => {
     try {
-        const { username, email, password  , fullname , imageurl } = req.body;
+        const { username, email, password  , fullname , imageurl , captchaToken } = req.body;
 
         if (!username || !email || !password)
             return res
@@ -20,6 +21,14 @@ export const register = async (req, res) => {
               .status(400)
               .json({ msg: "An account with this email already exists." });
         
+
+        if (captchaToken) {
+            const isCaptchaValid = await verifyCaptcha(captchaToken);
+            console.log("captcha is valid");
+            if (!isCaptchaValid) {
+                return res.status(400).json({ msg: "Captcha verification failed" });
+            }
+        }
 
         const salt = await bcrypt.genSalt();
         const passwordHash = await bcrypt.hash(password, salt);
@@ -54,7 +63,7 @@ export const register = async (req, res) => {
 
 export const login = async (req, res) => {
     try {
-        const { email, password } = req.body;
+        const { email, password , captchaToken} = req.body;
 
         if (!email || !password)
             return res
@@ -72,6 +81,15 @@ export const login = async (req, res) => {
             return res
               .status(400)
               .json({ msg: "Invalid credentials." });
+        
+        if (captchaToken) {
+            const isCaptchaValid = await verifyCaptcha(captchaToken);
+            console.log("captcha validity : " , isCaptchaValid);
+            if (!isCaptchaValid) {
+                return res.status(400).json({ msg: "Captcha verification failed" });
+            }
+        }
+
 
         const token = jwt.sign({ id: user._id }, process.env.JWT_SECRET);
         res.status(200).json({
@@ -87,3 +105,14 @@ export const login = async (req, res) => {
         res.status(500).json({ error: error.message });
     }
 }
+
+
+// verify captcha 
+
+const verifyCaptcha = async (token) => {
+    const secretKey = "6LcnQq4qAAAAAGX30wmheKw0N9fSacFO5QdtE9NE"; 
+    const response = await axios.post(
+      `https://www.google.com/recaptcha/api/siteverify?secret=${secretKey}&response=${token}`
+    );
+    return response.data.success; 
+  };
