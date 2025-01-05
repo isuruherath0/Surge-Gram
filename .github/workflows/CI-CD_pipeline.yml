@@ -20,13 +20,13 @@ jobs:
 
       - name: Install dependencies
         run: |
-          cd backend
+          cd Backend
           npm install
           cd ..
 
       - name: Run backend tests
         run: |
-          cd backend
+          cd Backend
           npm run test  # Run the backend unit tests
           cd ..
 
@@ -41,10 +41,10 @@ jobs:
           docker build --build-arg MONGO_URI=${{ secrets.MONGO_URI }} \
                        --build-arg JWT_SECRET=${{ secrets.JWT_SECRET }} \
                        --build-arg PORT=${{ secrets.PORT }} \
-                       -t ${{ secrets.DOCKER_USERNAME }}/surge-gram-backend:latest ./backend
+                       -t ${{ secrets.DOCKER_USERNAME }}/surge-gram-backend:latest ./Backend
           docker push ${{ secrets.DOCKER_USERNAME }}/surge-gram-backend:latest
 
       - name: Build and push frontend image
         run: |
-          docker build -t ${{ secrets.DOCKER_USERNAME }}/surge-gram-frontend:latest ./frontend
+          docker build -t ${{ secrets.DOCKER_USERNAME }}/surge-gram-frontend:latest ./Surge-gram-App
           docker push ${{ secrets.DOCKER_USERNAME }}/surge-gram-frontend:latest
