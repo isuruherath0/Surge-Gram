@@ -48,3 +48,44 @@ jobs:
         run: |
           docker build -t ${{ secrets.DOCKER_USERNAME }}/surge-gram-frontend:latest ./Surge-gram-App
           docker push ${{ secrets.DOCKER_USERNAME }}/surge-gram-frontend:latest
+
+  deploy:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Log in to Docker Hub
+        uses: docker/login-action@v2
+        with:
+          username: ${{ secrets.DOCKER_USERNAME }}
+          password: ${{ secrets.DOCKER_PASSWORD }}
+
+      - name: Create docker-compose.yml
+        run: |
+          echo "version: '3.8'
+
+          services:
+            backend:
+              image: ${{ secrets.DOCKER_USERNAME }}/surge-gram-backend:latest
+              container_name: surge-gram-backend
+              restart: always
+              ports:
+                - '3000:3000'
+              environment:
+                MONGO_URI: ${{ secrets.MONGO_URI }}
+                JWT_SECRET: ${{ secrets.JWT_SECRET }}
+                PORT: 5000
+
+            frontend:
+              image: ${{ secrets.DOCKER_USERNAME }}/surge-gram-frontend:latest
+              container_name: surge-gram-frontend
+              restart: always
+              ports:
+                - '5000:5000'
+              environment:
+                REACT_APP_BACKEND_URL: http://localhost:3000
+          " > docker-compose.yml
+
+      - name: Pull and run services with Docker Compose
+        run: |
+          docker-compose pull # Pull images from Docker Hub
+          docker-compose up -d # Start the application in detached mode

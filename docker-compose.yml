@@ -1,0 +1,22 @@
+version: "3.8"
+
+services:
+  backend:
+    image: ${{ secrets.DOCKER_USERNAME }}/surge-gram-backend:latest
+    container_name: surge-gram-backend
+    restart: always
+    ports:
+      - "5000:5000"
+    environment:
+      MONGO_URI: ${{ secrets.MONGO_URI }}
+      JWT_SECRET: ${{ secrets.JWT_SECRET }}
+      PORT: 5000
+
+  frontend:
+    image: ${{ secrets.DOCKER_USERNAME }}/surge-gram-frontend:latest
+    container_name: surge-gram-frontend
+    restart: always
+    ports:
+      - "3000:3000"
+    environment:
+      REACT_APP_BACKEND_URL: http://localhost:3000
