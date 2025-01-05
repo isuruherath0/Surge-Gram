@@ -2,7 +2,10 @@ import React, { useState, useEffect } from "react"; // eslint-disable-line no-un
 import { useNavigate, Link } from "react-router-dom";
 import { useDispatch, useSelector } from "react-redux";
 import ReCAPTCHA from "react-google-recaptcha";
-import { login, clearSuccess } from "../../features/auth/authSlice";
+import { login, clearSuccess} from "../../features/auth/authSlice";
+
+import { auth } from "../Firebase/firebase";
+import { signInWithEmailAndPassword } from "firebase/auth";
 
 const LoginForm = () => {
   const [email, setEmail] = useState("");
@@ -12,7 +15,7 @@ const LoginForm = () => {
   const dispatch = useDispatch();
   const { isError, isSuccess, message } = useSelector((state) => state.auth);
 
-  const handleLogin = (e) => {
+  const handleLogin = async (e) => {
     e.preventDefault();
 
     if (!captchaToken) {
@@ -21,7 +24,17 @@ const LoginForm = () => {
     }
 
     const userData = { email, password, captchaToken }; 
-    dispatch(login(userData));
+    try {
+        await signInWithEmailAndPassword(auth, email, password);
+        dispatch(login(userData));
+    }
+    catch (error) {
+       alert("Error signing in " + error.message);
+       console.error(error);
+       return;
+
+    }
+    
   };
 
   const handleCaptchaChange = (token) => {

@@ -24,7 +24,6 @@ export const register = async (req, res) => {
 
         if (captchaToken) {
             const isCaptchaValid = await verifyCaptcha(captchaToken);
-            console.log("captcha is valid");
             if (!isCaptchaValid) {
                 return res.status(400).json({ msg: "Captcha verification failed" });
             }
@@ -84,7 +83,7 @@ export const login = async (req, res) => {
         
         if (captchaToken) {
             const isCaptchaValid = await verifyCaptcha(captchaToken);
-            console.log("captcha validity : " , isCaptchaValid);
+            // console.log("captcha validity : " , isCaptchaValid);
             if (!isCaptchaValid) {
                 return res.status(400).json({ msg: "Captcha verification failed" });
             }

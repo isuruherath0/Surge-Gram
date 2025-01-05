@@ -6,6 +6,9 @@ import { Formik, Form, Field, ErrorMessage } from 'formik';
 import * as Yup from 'yup';
 import ReCAPTCHA from 'react-google-recaptcha';
 
+import { auth } from "../Firebase/firebase";
+import { createUserWithEmailAndPassword } from "firebase/auth";
+
 const SignupForm = () => {
   const dispatch = useDispatch();
   const navigate = useNavigate();
@@ -36,13 +39,15 @@ const SignupForm = () => {
   });
 
   const handleSignup = (values, { setSubmitting }) => {
+
+    createUserWithEmailAndPassword(auth, values.email, values.password)
     dispatch(register(values));
     setSubmitting(false);
   };
 
   React.useEffect(() => {
     if (isSuccess) {
-      navigate('/');
+      navigate('/login');
     }
   }, [isSuccess, navigate]);
 

@@ -19,9 +19,9 @@ export const login = async (userdata) => {
 export const register = async (formData) => {
     const response = await axios.post(`${API_URL}/register`, formData);
     if (response.status === 200) {
-        const token = response.data.token;
-        localStorage.setItem('token', token);
-        localStorage.setItem('user', JSON.stringify(response.data.user));
+        // const token = response.data.token;
+        // localStorage.setItem('token', token);
+        // localStorage.setItem('user', JSON.stringify(response.data.user));
     }
     return response.data;
 };
