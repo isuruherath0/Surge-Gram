@@ -94,7 +94,7 @@ jobs:
         run: |
           cat docker-compose.yml
 
-      - name: Pull and run services with Docker Compose
-        run: |
-          docker-compose pull  # Pull images from Docker Hub
-          docker-compose up -d  # Start the application in detached mode
+      # - name: Pull and run services with Docker Compose
+      #   run: |
+      #     docker-compose pull  # Pull images from Docker Hub
+      #     docker-compose up -d  # Start the application in detached mode
