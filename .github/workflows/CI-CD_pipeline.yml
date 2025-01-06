@@ -50,7 +50,7 @@ jobs:
                        -t ${{ secrets.DOCKER_USERNAME }}/surge-gram-frontend:latest ./Surge-gram-App
           docker push ${{ secrets.DOCKER_USERNAME }}/surge-gram-frontend:latest
 
-  deploy:
+  run_build:
     runs-on: ubuntu-latest
 
     steps:
@@ -75,7 +75,7 @@ jobs:
               container_name: surge-gram-backend
               restart: always
               ports:
-                - '5000:5000'
+                - '3000:3000'
               environment:
                 MONGO_URI: '${{ secrets.MONGO_URI }}'
                 JWT_SECRET: '${{ secrets.JWT_SECRET }}'
@@ -86,7 +86,7 @@ jobs:
               container_name: surge-gram-frontend
               restart: always
               ports:
-                - '3000:3000'
+                - '5001:80'
               environment:
                 REACT_APP_BACKEND_URL: 'http://localhost:5000'" > docker-compose.yml
 
