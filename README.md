@@ -44,6 +44,6 @@ Developed as a technical interview task for Surge Global
 
 ScreenShots :
 
-![Home Screen](Resources/HomeScreen.PNG)  
-![Register Screen](Resources/RegisterScreen.PNG)  
-![Login Screen](Resources/LoginScreen.PNG)
+![Home Screen](Resources/HomeScreen.png)  
+![Register Screen](Resources/RegisterScreen.png)  
+![Login Screen](Resources/LoginScreen.png)
