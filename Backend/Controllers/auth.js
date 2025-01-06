@@ -49,7 +49,9 @@ export const register = async (req, res) => {
             user: {
                 id: savedUser._id,
                 username: savedUser.username,
-                email: savedUser.email
+                email: savedUser.email,
+                fullname : savedUser.fullname,
+                imageurl : savedUser.imageurl
             }
         });
 
@@ -96,7 +98,9 @@ export const login = async (req, res) => {
             user: {
                 id: user._id,
                 username: user.username,
-                email: user.email
+                email: user.email,
+                fullname : user.fullname,
+                imageurl : user.imageurl 
             }
         });
 

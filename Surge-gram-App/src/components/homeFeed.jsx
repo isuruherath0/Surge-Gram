@@ -1,25 +1,34 @@
-import React, { useEffect } from "react"; // eslint-disable-line no-unused-vars
+import React, { useEffect, useState } from "react"; // eslint-disable-line no-unused-vars
 import { useSelector, useDispatch } from "react-redux";
 import { useNavigate } from "react-router-dom";
-import { getPosts, reset } from "../../features/posts/postSlice.js";
+import { getPosts, reset, addLikeorRemoveLike } from "../../features/posts/postSlice.js";
 import { logout } from "../../features/auth/authSlice.js";
-import { addLikeorRemoveLike } from "../../features/posts/postSlice.js";
-import logo from "../assets/logo.png";
+import logo from "../assets/logo.jpg";
 import userImage from "../assets/user.png";
-import { FaRegHeart } from "react-icons/fa6";
-import { FaHeart } from "react-icons/fa6";
+import { FaRegHeart, FaHeart } from "react-icons/fa6";
+import { BsCalendarDateFill } from "react-icons/bs";
+
+import { styles } from "../styles/homFeed.js";
 
 const HomeFeed = () => {
   const dispatch = useDispatch();
   const navigate = useNavigate();
 
   const { user, token } = useSelector((state) => state.auth);
-  const { posts, isLoading, isError, message } = useSelector(
-    (state) => state.post
-  );
+  const { posts, isLoading, isError, message } = useSelector((state) => state.post);
+
+  const [sortBy, setSortBy] = useState("likes");
+
+  const sortedPosts = [...posts].sort((a, b) => {
+    if (sortBy === "likes") {
+      return b.likes.length - a.likes.length;
+    } else {
+      return new Date(b.createdAt) - new Date(a.createdAt);
+    }
+  });
 
   useEffect(() => {
-    if (!user || !token) {
+    if (!user || !token || !user.id) {
       navigate("/login");
     } else {
       dispatch(getPosts());
@@ -41,192 +50,65 @@ const HomeFeed = () => {
     }
   };
 
-  return (
-    <div style={{ display: "flex", height: "100vh" }}>
-      {/* Left Section */}
-      <div
-        style={{
-          flex: 1,
-          padding: "20px",
-          borderRight: "1px solid #ccc",
-          display: "flex",
-          flexDirection: "row",
-          alignItems: "flex-start",
-          gap: "15px",
-          boxSizing: "border-box",
-        }}
-      >
-        {/* Logo Image */}
-        <div>
-          <img
-            src={logo}
-            alt="Surge-Gram Logo"
-            style={{
-              width: "100px",
-              height: "100px",
-            }}
-          />
-        </div>
 
-        {/* App Name */}
-        <p
-          style={{
-            fontSize: "32px",
-            fontWeight: "bold",
-            color: "#444",
-            letterSpacing: "1px",
-          }}
-        >
-          Surge-Gram
-        </p>
+
+  return (
+    <div style={styles.container}>
+      <div style={styles.leftPanel}>
+        <img src={logo} alt="Surge-Gram Logo" style={styles.logo} />
+        <p style={styles.title}>Surge-Gram</p>
       </div>
 
-      {/* Middle Section */}
-      <div
-        style={{
-          flex: 2,
-          overflowY: "scroll",
-          padding: "20px",
-          boxSizing: "border-box",
-        }}
-      >
+      <div style={styles.middlePanel}>
+        <div style={styles.filterSection}>
+          <h3>Filter By:</h3>
+          <button
+            onClick={() => setSortBy("date")}
+            style={styles.filterButton(sortBy === "date")}
+          >
+            <BsCalendarDateFill style={{ marginRight: "5px" }} />
+          </button>
+          <button
+            onClick={() => setSortBy("likes")}
+            style={styles.filterButton(sortBy === "likes")}
+          >
+            <FaHeart style={{ marginRight: "5px" }} />
+          </button>
+        </div>
+
         <div>
           {isLoading && <p>Loading posts...</p>}
           {isError && <p>Error fetching posts: {message}</p>}
-          {posts.map((post) => (
-            <div
-              key={post._id}
-              style={{
-                boxShadow: "0px 4px 6px rgba(0, 0, 0, 0.1)",
-                borderRadius: "2px",
-                marginBottom: "30px",
-              }}
-            >
-              {/* Post Image */}
-              <img
-                src={post.imageurl}
-                alt="Post"
-                style={{
-                  width: "100%",
-                }}
-              />
-
-              {/* Content Below Post */}
-              <div
-                style={{
-                  display: "flex",
-                  justifyContent: "space-between",
-                  alignItems: "center",
-                  padding: "5px",
-                }}
-              >
-                {/* Likes Section */}
-                <div
-                  style={{
-                    display: "flex",
-                    alignItems: "center",
-                    gap: "5px",
-                  }}
-                >
+          {sortedPosts.map((post) => (
+            <div key={post._id} style={styles.postContainer}>
+              <img src={post.imageurl} alt="Post" style={styles.postImage} />
+              <div style={styles.postFooter}>
+                <div style={styles.likesSection}>
                   <button
                     onClick={() => handleLike(post._id)}
-                    style={{
-                      background: "none",
-                      border: "none",
-                      fontSize: "18px",
-                      cursor: "pointer",
-                    }}
+                    style={{ background: "none", border: "none", fontSize: "18px", cursor: "pointer" }}
                   >
-                    {post.likes.includes(user.id) ? (
-                      <FaHeart style={{ fill: "red" }} />
-                    ) : (
-                      <FaRegHeart />
-                    )}
+                    {post.likes.includes(user.id) ? <FaHeart style={{ fill: "red" }} /> : <FaRegHeart />}
                   </button>
                   <span>{post.likes.length}</span>
                 </div>
-
-                {/* Username */}
-                <div style={{ fontWeight: "bold", fontSize: "14px" }}>
-                  {post.user.username}
-                </div>
-
-                {/* Date */}
-                <div style={{ fontSize: "12px", color: "#888" }}>
-                  {new Date(post.createdAt).toLocaleString()}
-                </div>
+                <div style={styles.username}>{post.user.username}</div>
+                <div style={styles.date}>{new Date(post.createdAt).toLocaleString()}</div>
               </div>
             </div>
           ))}
         </div>
       </div>
 
-      {/* Right Section */}
-      <div
-        style={{
-          flex: 1,
-          padding: "20px",
-          borderLeft: "1px solid #ccc",
-          display: "flex",
-          flexDirection: "column",
-          alignItems: "flex-end",
-          boxSizing: "border-box",
-        }}
-      >
-        <div
-          style={{
-            display: "flex",
-            alignItems: "center",
-            marginBottom: "20px",
-            width: "50%",
-            boxShadow: "0px 4px 6px rgba(0, 0, 0, 0.1)",
-            borderRadius: "6px",
-          }}
-        >
-          <img
-            src={user?.profileImage || userImage}
-            alt="User"
-            style={{
-              width: "60px",
-              height: "60px",
-              borderRadius: "60%",
-              marginRight: "10px",
-              marginLeft: "10px",
-            }}
-          />
+      <div style={styles.rightPanel}>
+        <div style={styles.userDetails}>
+          <img src={user?.imageurl || userImage} alt="User" style={styles.userImage} />
           <div>
-            <p
-              style={{
-                fontWeight: "bold",
-                fontSize: "20px",
-                marginBottom: "5px",
-              }}
-            >
-              {user?.fullName || "Full Name"}
-            </p>
-            <p
-              style={{
-                fontSize: "14px",
-                color: "#888",
-                marginTop: "0px",
-              }}
-            >
-              @{user?.username}
-            </p>
+            <p style={styles.userName}>{user?.fullname || "Full Name"}</p>
+            <p style={styles.usernameHandle}>@{user?.username}</p>
           </div>
         </div>
-        <button
-          onClick={handleLogout}
-          style={{
-            backgroundColor: "#ff6666",
-            color: "#fff",
-            border: "none",
-            padding: "10px 20px",
-            borderRadius: "5px",
-            cursor: "pointer",
-            width: "50%",
-          }}
-        >
+        <button onClick={handleLogout} style={styles.logoutButton}>
           Logout
         </button>
       </div>

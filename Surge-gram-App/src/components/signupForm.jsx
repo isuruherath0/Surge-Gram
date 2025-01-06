@@ -6,8 +6,11 @@ import { Formik, Form, Field, ErrorMessage } from 'formik';
 import * as Yup from 'yup';
 import ReCAPTCHA from 'react-google-recaptcha';
 
-import { auth } from "../Firebase/firebase";
+import { auth , storage } from "../Firebase/firebase";
 import { createUserWithEmailAndPassword } from "firebase/auth";
+import {ref , uploadBytes , getDownloadURL} from "firebase/storage";
+
+import { styles } from '../styles/signupform';
 
 const SignupForm = () => {
   const dispatch = useDispatch();
@@ -20,6 +23,7 @@ const SignupForm = () => {
     email: '',
     password: '',
     captchaToken: '',
+    profilePicture: null,
   };
 
   const validationSchema = Yup.object({
@@ -38,11 +42,33 @@ const SignupForm = () => {
     captchaToken: Yup.string().required('Please verify you are not a robot'),
   });
 
-  const handleSignup = (values, { setSubmitting }) => {
+  const handleSignup = async (values, { setSubmitting }) => {
 
-    createUserWithEmailAndPassword(auth, values.email, values.password)
-    dispatch(register(values));
-    setSubmitting(false);
+    try {
+        let imageUrl = "";
+    
+        // Check if a profile picture is provided
+        if (values.profilePicture) {
+          const storageRef = ref(storage, `profile_pictures/${values.profilePicture.name}`);
+          const snapshot = await uploadBytes(storageRef, values.profilePicture);
+          imageUrl = await getDownloadURL(snapshot.ref);
+        }
+    
+        // Add imageUrl to the values object
+        const formData = {
+          ...values,
+          imageurl: imageUrl,
+        };
+    
+        // Firebase authentication and backend registration
+        await createUserWithEmailAndPassword(auth, values.email, values.password);
+        dispatch(register(formData));
+      } catch (error) {
+        console.error("Error during signup:", error);
+      } finally {
+        setSubmitting(false);
+        navigate('/login');
+      }
   };
 
   React.useEffect(() => {
@@ -103,6 +129,25 @@ const SignupForm = () => {
               />
               <ErrorMessage name="password" component="div" style={styles.error} />
             </div>
+            <div style={styles.inputGroup}>
+                <label>Profile Picture (optional):</label>
+                <input
+                    type="file"
+                    accept="image/*"
+                    onChange={(e) => {
+                    const file = e.target.files[0];
+                    if (file) {
+                        if (file.size > 4 * 1024 * 1024) {
+                        alert("File size must be less than 4 MB");
+                        e.target.value = null; 
+                        } else {
+                        setFieldValue("profilePicture", file);
+                        }
+                    }
+                    }}
+                    style={styles.input}
+                />
+            </div>
 
             <div style={styles.inputGroup}>
               <ReCAPTCHA
@@ -129,56 +174,5 @@ const SignupForm = () => {
   );
 };
 
-const styles = {
-    container: {
-      maxWidth: '400px',
-      margin: '50px auto',
-      padding: '20px',
-      textAlign: 'center',
-      border: '1px solid #ddd',
-      borderRadius: '8px',
-      boxShadow: '0px 4px 6px rgba(0, 0, 0, 0.1)',
-    },
-    form: {
-      display: 'flex',
-      flexDirection: 'column',
-    },
-    inputGroup: {
-      marginBottom: '15px',
-      textAlign: 'left',
-    },
-    input: {
-      width: '100%',
-      padding: '10px',
-      borderRadius: '4px',
-      border: '1px solid #ccc',
-      marginTop: '5px',
-    },
-    button: {
-      backgroundColor: '#007bff',
-      color: 'white',
-      padding: '10px',
-      border: 'none',
-      borderRadius: '4px',
-      cursor: 'pointer',
-      fontSize: '16px',
-    },
-    error: {
-      color: 'red',
-      marginTop: '5px',
-    },
-    success: {
-      color: 'green',
-      marginBottom: '15px',
-    },
-    linkText: {
-      marginTop: '15px',
-      fontSize: '14px',
-    },
-    link: {
-      color: '#007bff',
-      textDecoration: 'none',
-    },
-  };
 
 export default SignupForm;
