@@ -47,14 +47,12 @@ const SignupForm = () => {
     try {
         let imageUrl = "";
     
-        // Check if a profile picture is provided
         if (values.profilePicture) {
           const storageRef = ref(storage, `profile_pictures/${values.profilePicture.name}`);
           const snapshot = await uploadBytes(storageRef, values.profilePicture);
           imageUrl = await getDownloadURL(snapshot.ref);
         }
-    
-        // Add imageUrl to the values object
+
         const formData = {
           ...values,
           imageurl: imageUrl,

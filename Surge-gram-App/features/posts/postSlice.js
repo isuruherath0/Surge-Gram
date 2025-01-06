@@ -9,7 +9,6 @@ const initialState = {
     message: "",
 }
 
-// Async thunk to get all posts
 export const getPosts = createAsyncThunk("posts/getPosts", async (_, thunkAPI) => {
     try {
         const response = await postService.getAllPosts();
@@ -20,7 +19,6 @@ export const getPosts = createAsyncThunk("posts/getPosts", async (_, thunkAPI) =
     }
 });
 
-// Async thunk to add or remove like from a post
 export const addLikeorRemoveLike = createAsyncThunk(
     "posts/addLikeorRemoveLike", 
     async ({ postId, token }, thunkAPI) => {
