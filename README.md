@@ -14,13 +14,13 @@ Developed as a technical interview task for Surge Global
 
 ## Tech Stack 
 
-### Frontend - ReactJS
-### Backend - ExpressJS
-### Database - Mongodb , Firebase firestore
-### Authentication and image storage - Firebase
-### Frontend state management - Redux toolkit
-### continuous intergration through github actions
-## containerization through docker and publishing to dockerhub through the pipeline
+#### Frontend - ReactJS
+#### Backend - ExpressJS
+#### Database - Mongodb , Firebase firestore
+#### Authentication and image storage - Firebase
+#### Frontend state management - Redux toolkit
+#### continuous intergration through github actions
+#### containerization through docker and publishing to dockerhub through the pipeline
 
 
 ##  env contents
