@@ -15,3 +15,6 @@ COPY . .
 
 # Build the production-ready React app
 RUN npm run build
+
+# Expose the port the backend server listens on
+EXPOSE 5001
